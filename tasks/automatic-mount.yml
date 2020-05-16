@@ -1,0 +1,21 @@
+---
+
+- name: Create mount point
+  become: yes
+  file:
+    path: /mnt/{{ item.label.lower() }}
+    state: directory
+
+- name: Update fstab
+  become: yes
+  lineinfile:
+    path: /etc/fstab
+    line: >
+      PARTUUID={{ item.partuuid }} 
+      /mnt/{{ item.label.lower() }} 
+      {{ item.fstype }} 
+      defaults,auto,nofail,rw,users,umask=000  0  0
+    regexp: '^PARTUUID={{ item.partuuid }}'
+    insertafter: '^PARTUUID='
+
+...

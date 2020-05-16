@@ -1,0 +1,31 @@
+---
+# https://www.raspberrypi.org/documentation/configuration/external-storage.md
+
+- hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: Install packages
+      become: yes
+      apt:
+        update-cache: yes
+        cache_valid_time: 3600
+        pkg:
+          - exfat-fuse
+          - ntfs-3g
+
+    - name: Discover devices
+      command: lsblk --json --output PARTUUID,LABEL,FSTYPE
+      changed_when: no
+      register: lsblk
+
+    - name: For each device ...
+      vars:
+        result: "{{ lsblk.stdout | from_json }}"
+      include_tasks: tasks/automatic-mount.yml
+      loop: "{{ result.blockdevices }}"
+      when:
+        - item.fstype in [ "vfat", "exfat", "ntfs" ]
+        - item.label not in [ "rootfs", "boot", None ]
+
+...
