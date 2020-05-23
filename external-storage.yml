@@ -28,4 +28,11 @@
         - item.fstype in [ "vfat", "exfat", "ntfs" ]
         - item.label not in [ "rootfs", "boot", None ]
 
+    - name: Install script
+      become: yes
+      copy:
+        src: files/usb-power.sh
+        dest: /usr/local/sbin/usb-power.sh
+        mode: 0755
+
 ...
