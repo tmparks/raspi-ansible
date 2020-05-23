@@ -3,7 +3,7 @@
 - name: Create mount point
   become: yes
   file:
-    path: /mnt/{{ item.label.lower() }}
+    path: /mnt/{{ item.label }}
     state: directory
 
 - name: Update fstab
@@ -12,7 +12,7 @@
     path: /etc/fstab
     line: >
       PARTUUID={{ item.partuuid }} 
-      /mnt/{{ item.label.lower() }} 
+      /mnt/{{ item.label.replace(' ','\040') }} 
       {{ item.fstype }} 
       defaults,auto,nofail,rw,users,umask=000  0  0
     regexp: '^PARTUUID={{ item.partuuid }}'
