@@ -1,5 +1,7 @@
 ---
-
+# Configure /etc/fstab to automatically mount a storage device.
+# Expects item.lable, item.partuuid, and item.fstype to be defined.
+ 
 - name: Create mount point
   become: yes
   file:
