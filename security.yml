@@ -1,0 +1,33 @@
+---
+# Configure the Raspberry Pi to require key-based authentication for ssh.
+# https://www.raspberrypi.org/documentation/configuration/security.md
+
+- hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: Add authorized keys
+      authorized_key:
+        user: "{{ ansible_user }}"
+        key: "{{ lookup('file', item) }}"
+      with_fileglob:
+        - "{{ lookup('env','HOME') + '/.ssh/*.pub' }}"
+        - "files/*.pub"
+
+    - name: Verify key-based authentication
+      command: ssh -o PasswordAuthentication=no {{ ansible_user }}@{{ inventory_hostname }} true
+      delegate_to: localhost
+      changed_when: no
+
+    - name: Disable password logins
+      become: yes
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "{{ '^#?' + item.option + ' ' }}"
+        line: "{{ item.option + ' ' + item.value }}"
+      with_items:
+        - { option: 'ChallengeResponseAuthentication', value: 'no' }
+        - { option: 'PasswordAuthentication', value: 'no' }
+        - { option: 'UsePAM', value: 'no' }
+
+...

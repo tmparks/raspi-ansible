@@ -9,3 +9,9 @@ and /etc/fstab will be configured to automatically mount
 the device.
 
 See [this guide](https://www.raspberrypi.org/documentation/configuration/external-storage.md)
+
+## security.yml
+
+Configure the Raspberry Pi to require key-based authentication for ssh.
+
+See [this guide](https://www.raspberrypi.org/documentation/configuration/security.md)
