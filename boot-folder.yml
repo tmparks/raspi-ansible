@@ -1,0 +1,72 @@
+---
+# Configure the Raspberry Pi boot folder.
+# https://www.raspberrypi.org/documentation/configuration/boot_folder.md
+# https://www.raspberrypi.org/documentation/configuration/config-txt/
+
+- hosts: localhost
+  gather_facts: no
+
+  vars_prompt:
+    - name: boot
+      prompt: "Path to boot folder"
+      private: no
+      default: "/Volumes/boot"
+
+    - name: country
+      prompt: "Country code"
+      private: no
+      default: "US"
+
+    - name: ssid
+      prompt: "WiFi network name"
+      unsafe: yes
+      private: no
+
+    - name: psk1
+      prompt: "WiFi password"
+      unsafe: yes
+      private: yes
+
+    - name: psk2
+      prompt: "Repeat WiFi password"
+      unsafe: yes
+      private: yes
+
+  tasks:
+    - name: Verify WiFi password
+      fail:
+        msg: WiFi passwords do not match!
+      when: psk1 != psk2
+
+    - name: Enable SSH
+      file:
+        path: "{{ boot }}/ssh.txt"
+        state: touch
+      changed_when: no
+
+    - name: Copy WiFi configuration file
+      copy:
+        src: files/wpa_supplicant.conf
+        dest: "{{ boot }}/wpa_supplicant.conf"
+
+    - name: Set WiFi configuration options
+      lineinfile:
+        path: "{{ boot }}/wpa_supplicant.conf"
+        regexp: "^(\\s*){{ item.option }}="
+        line: "\\1{{ item.option }}={{ item.value }}"
+        backrefs: yes
+      no_log: yes
+      with_items:
+        - { option: 'country', value: '{{ country }}' }
+        - { option: 'ssid', value: '"{{ ssid }}"' }
+        - { option: 'psk', value: '"{{ psk1 }}"' }
+
+    - name: Set additional boot configuration options
+      lineinfile:
+        path: "{{ boot}}/config.txt"
+        regexp: "^#?{{ item.option }}="
+        line: "{{ item.option }}={{ item.value }}"
+      with_items:
+        - { option: 'gpu_mem', value: '16' }
+
+...
