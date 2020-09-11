@@ -14,6 +14,10 @@ enable headless operation via WiFi and remote access via SSH.
 See [this guide](https://www.raspberrypi.org/documentation/configuration/boot_folder.md)
 and [this guide](https://www.raspberrypi.org/documentation/configuration/config-txt/)
 
+## cacti.yml
+
+Configure the Raspberry Pi to monitor your home network using cacti.
+
 ## external-storage.yml
 
 Configure the Raspberry Pi to use external USB storage.
