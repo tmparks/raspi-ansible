@@ -29,7 +29,6 @@
         - { src: cacti_graph_template_modem_power.xml, dest: /tmp/, mode: '0644' }
 
     - name: Import templates
-      when: false
       become: yes
       command:
         argv:
@@ -41,7 +40,6 @@
         - cacti_graph_template_modem_power.xml
 
     - name: Add devices
-      when: false
       become: yes
       command:
         argv:
