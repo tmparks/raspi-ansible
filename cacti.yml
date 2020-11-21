@@ -22,31 +22,47 @@
         dest: "{{ item.dest }}"
         mode: "{{ item.mode }}"
       loop:
-        - { src: modem_power.py, dest: /usr/local/sbin/, mode: '0755' }
+        - { src: modem_status.py, dest: /usr/local/sbin/, mode: '0755' }
+        - { src: linux_network.pl, dest: /usr/local/sbin/, mode: '0755' }
+        - { src: cacti_data_template_modem_status.xml, dest: /tmp/, mode: '0644' }
+        - { src: cacti_graph_template_modem_errors.xml, dest: /tmp/, mode: '0644' }
         - { src: cacti_graph_template_modem_power.xml, dest: /tmp/, mode: '0644' }
 
-    - name: Import template
+    - name: Import templates
+      when: false
       become: yes
       command:
         argv:
           - /usr/share/cacti/cli/import_template.php
-          - --filename=/tmp/cacti_graph_template_modem_power.xml
+          - --filename=/tmp/{{ item }}
+      loop:
+        - cacti_data_template_modem_status.xml
+        - cacti_graph_template_modem_errors.xml
+        - cacti_graph_template_modem_power.xml
 
-    - name: Add device
+    - name: Add devices
+      when: false
       become: yes
       command:
         argv:
           - /usr/share/cacti/cli/add_device.php
-          - --description=Gateway
-          - --ip={{ ansible_default_ipv4.gateway }}
+          - --description={{ item.description }}
+          - --ip={{ item.ip }}
           - --template=0
           - --version=0
           - --ping_method=icmp
+      loop:
+        - { description: Localhost, ip: localhost }
+        - { description: Gateway, ip: "{{ ansible_default_ipv4.gateway }}" }
 
     - name: Remove files
       become: yes
       file:
-        path: /tmp/cacti_graph_template_modem_power.xml
+        path: /tmp/{{ item }}
         state: absent
+      loop:
+        - cacti_data_template_modem_status.xml
+        - cacti_graph_template_modem_errors.xml
+        - cacti_graph_template_modem_power.xml
 
 ...
