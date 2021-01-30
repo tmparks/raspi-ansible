@@ -30,6 +30,8 @@ user = 'admin'
 password = 'motorola'
 downstream_power = 0.0
 upstream_power = 0.0
+corrected_errors = 0
+uncorrected_errors = 0
 
 # Get command line arguments
 if len(sys.argv) > 1 :
