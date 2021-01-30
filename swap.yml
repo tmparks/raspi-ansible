@@ -1,0 +1,17 @@
+---
+# Configure the Raspberry Pi to have additional swap space.
+# https://pimylifeup.com/raspberry-pi-swap-file/
+
+- hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: Disable absolute swap size
+      become: yes
+      lineinfile:
+        path: /etc/dphys-swapfile
+        backrefs: yes
+        regexp: "^#?(CONF_SWAPSIZE=.*)$"
+        line: '#\1'
+
+...
