@@ -1,0 +1,53 @@
+---
+# Configure the Raspberry Pi to allow VNC access to the desktop.
+# https://www.raspberrypi.org/documentation/remote-access/vnc/
+
+- hosts: all
+  gather_facts: no
+
+  vars_prompt:
+    - name: password1
+      prompt: "VNC password"
+      unsafe: yes
+      private: yes
+
+    - name: password2
+      prompt: "Repeat VNC password"
+      unsafe: yes
+      private: yes
+
+  tasks:
+    - name: Verify VNC password
+      fail:
+        msg: VNC passwords do not match!
+      when: password1 != password2
+
+    - name: Install packages
+      become: yes
+      apt:
+        update-cache: yes
+        cache_valid_time: 3600
+        pkg:
+          - realvnc-vnc-server
+
+    - name: Set VNC password
+      become: yes
+      command:
+        cmd: vncpasswd -service
+        stdin: "{{ password1 }}\n{{ password2 }}\n"
+
+    - name: Set VNC options
+      become: yes
+      lineinfile:
+        path: /root/.vnc/config.d/vncserver-x11
+        regexp: "^#?Authentication="
+        line: "Authentication=VncAuth"
+
+    - name: Enable services
+      become: yes
+      systemd:
+        name: vncserver-x11-serviced.service
+        enabled: yes
+        state: started
+
+...
