@@ -13,6 +13,7 @@
         cache_valid_time: 3600
         pkg:
           - exfat-fuse
+          - hfsplus
           - ntfs-3g
 
     - name: Discover devices
@@ -26,8 +27,9 @@
       include_tasks: tasks/automatic-mount.yml
       loop: "{{ result.blockdevices }}"
       when:
-        - item.fstype in [ "vfat", "exfat", "ntfs" ]
-        - item.label not in [ "rootfs", "boot", None ]
+        - item.partuuid not in [ None ]
+        - item.fstype in [ "exfat", "hfsplus", "ntfs", "vfat" ]
+        - item.label not in [ None, "boot", "EFI", "rootfs" ]
 
     - name: Install script
       become: yes
