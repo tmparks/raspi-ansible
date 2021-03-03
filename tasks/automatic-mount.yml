@@ -16,7 +16,7 @@
       PARTUUID={{ item.partuuid }} 
       /mnt/{{ item.label.replace(' ','\040') }} 
       {{ item.fstype }} 
-      defaults,auto,nofail,rw,users,umask=000  0  0
+      defaults,users,nofail,umask=000,force  0  0
     regexp: '^PARTUUID={{ item.partuuid }}'
     insertafter: '^PARTUUID='
 
