@@ -16,7 +16,7 @@ fi
 
 case "$1" in
 off)
-  systemctl stop netatalk
+	systemctl stop netatalk
 	shopt -s nullglob
 	MOUNT_POINTS="/media/pi/* /mnt/*"
 	if [ -n "$MOUNT_POINTS" ]
