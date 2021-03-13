@@ -16,6 +16,7 @@ fi
 
 case "$1" in
 off)
+  systemctl stop netatalk
 	shopt -s nullglob
 	MOUNT_POINTS="/media/pi/* /mnt/*"
 	if [ -n "$MOUNT_POINTS" ]
@@ -23,7 +24,7 @@ off)
 		umount --verbose $MOUNT_POINTS
 	fi
 	echo 0 > $DEVICE
-	;; 
+	;;
 on)
 	echo 1 > $DEVICE
 	;;

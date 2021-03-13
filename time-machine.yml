@@ -1,0 +1,34 @@
+---
+# Configure the Raspberry Pi as a network file server for Time Machine.
+
+- hosts: all
+  gather_facts: yes
+
+  tasks:
+    - name: Install packages
+      become: yes
+      apt:
+        update-cache: yes
+        cache_valid_time: 3600
+        pkg:
+          - netatalk
+
+    - name: Configure Time Capsule emulation
+      become: yes
+      lineinfile:
+        path: /etc/netatalk/afp.conf
+        insertafter: '^\[Global\]'
+        line: mimic model = TimeCapsule6,106
+
+    - name: Configure Time Machine volume
+      become: yes
+      blockinfile:
+        path: /etc/netatalk/afp.conf
+        marker: "; {mark} ANSIBLE MANAGED BLOCK"
+        block: |
+          [bp-backup]
+          path = /mnt/bp-backup/time-machine
+          time machine = yes
+          hosts allow = 192.168.0.0/24
+
+...
