@@ -24,7 +24,7 @@
       loop:
         - { src: dns.pl, dest: /usr/local/sbin/, mode: '0755' }
         - { src: linux_network.pl, dest: /usr/local/sbin/, mode: '0755' }
-        - { src: modem_status.py, dest: /usr/local/sbin/, mode: '0755' }
+        - { src: motorola_status.py, dest: /usr/local/sbin/, mode: '0755' }
         - { src: cacti_data_template_modem_status.xml, dest: /tmp/, mode: '0644' }
         - { src: cacti_graph_template_modem_errors.xml, dest: /tmp/, mode: '0644' }
         - { src: cacti_graph_template_modem_power.xml, dest: /tmp/, mode: '0644' }
