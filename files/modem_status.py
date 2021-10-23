@@ -17,7 +17,9 @@ def sum_db_values(table, row_start, row_stop, col) :
     """Sum values in given rows and column"""
     sum = 0.0
     for row in range(row_start, row_stop) :
-        sum += from_db(float(get_value(table, row, col)))
+        value = float(get_value(table, row, col))
+        if value != 0.0 :
+            sum += from_db(value)
     return to_db(sum)
 
 def get_value(table, row, col) :
