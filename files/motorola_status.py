@@ -27,21 +27,15 @@ def get_value(table, row, col) :
     return table.find_all('tr')[row].find_all('td')[col].string
 
 # Set default values
-host = '192.168.0.1'
-user = 'admin'
-password = 'motorola'
 downstream_power = 0.0
 upstream_power = 0.0
 corrected_errors = 0
 uncorrected_errors = 0
 
 # Get command line arguments
-if len(sys.argv) > 1 :
-    host = sys.argv[1]
-if len(sys.argv) > 2:
-    user = sys.argv[2]
-if len(sys.argv) > 3:
-    password = sys.argv[3]
+host = sys.argv[1] if len(sys.argv) > 1 else '192.168.100.1'
+user = sys.argv[2] if len(sys.argv) > 2 else 'admin'
+password = sys.argv[3] if len(sys.argv) > 3 else 'motorola'
 
 # Log in
 post_data = { 'loginUsername': user, 'loginPassword': password }
