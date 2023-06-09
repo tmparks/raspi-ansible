@@ -1,0 +1,20 @@
+---
+# Set kernel command line option in /boot/cmdline.txt.
+# Expects item.option and item.value to be defined.
+# https://www.raspberrypi.com/documentation/computers/configuration.html#the-kernel-command-line
+
+- name: Remove {{ item.option }} kernel command-line option
+  become: yes
+  replace:
+    path: /boot/cmdline.txt
+    regexp: '\s*{{ item.option }}=\S+'
+
+- name: Insert {{ item.option }} kernel command-line option
+  become: yes
+  lineinfile:
+    path: /boot/cmdline.txt
+    backrefs: yes
+    regexp: '^(.*)$'
+    line: '\1 {{ item.option }}={{ item.value}}'
+
+...

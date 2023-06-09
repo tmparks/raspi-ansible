@@ -1,6 +1,7 @@
 ---
 # Configure the Raspberry Pi to have additional swap space.
 # https://pimylifeup.com/raspberry-pi-swap-file/
+# https://www.kernel.org/doc/html/latest/admin-guide/mm/zswap.html
 
 - hosts: all
   gather_facts: no
@@ -11,7 +12,12 @@
       lineinfile:
         path: /etc/dphys-swapfile
         backrefs: yes
-        regexp: "^#?(CONF_SWAPSIZE=.*)$"
+        regexp: '^#?(CONF_SWAPSIZE=.*)$'
         line: '#\1'
+
+    - name: Enable ZSWAP
+      include_tasks: tasks/cmdline.yml
+      loop:
+        - { option: 'zswap.enabled', value: 'yes' }
 
 ...
