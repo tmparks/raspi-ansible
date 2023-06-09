@@ -1,6 +1,9 @@
 ---
+# Improve security.
 # Configure the Raspberry Pi to require key-based authentication for ssh.
+# Enable automatic upgrades.
 # https://www.raspberrypi.org/documentation/configuration/security.md
+# https://wiki.debian.org/UnattendedUpgrades
 
 - hosts: all
   gather_facts: no
@@ -29,5 +32,13 @@
         - { option: 'ChallengeResponseAuthentication', value: 'no' }
         - { option: 'PasswordAuthentication', value: 'no' }
         - { option: 'UsePAM', value: 'no' }
+
+    - name: Enable automatic updates
+      become: yes
+      apt:
+        update-cache: yes
+        cache_valid_time: 3600
+        pkg:
+          - unattended-upgrades
 
 ...
