@@ -1,5 +1,8 @@
 # ignore public key files
 files/*.pub
 
+# ignore backup files
+backup/
+
 # ignore vscode artifacts
 .devcontainer/

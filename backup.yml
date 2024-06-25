@@ -1,0 +1,19 @@
+---
+# Copy files from remote hosts
+
+- hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: Copy files from remote host
+      become: yes
+      ansible.posix.synchronize:
+        mode: "pull"
+        src: "{{ item }}"
+        dest: "backup/{{ inventory_hostname }}/{{ item }}"
+        rsync_opts: [ "--mkpath" ]
+      loop:
+       - /etc/cacti/
+       - /var/lib/cacti/rra/
+
+...

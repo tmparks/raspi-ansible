@@ -4,7 +4,8 @@ FROM alpine
 RUN apk add --no-cache \
     ansible \
     git \
-    openssh-client
+    openssh-client \
+    rsync
 
 RUN adduser --disabled-password user
 USER user
