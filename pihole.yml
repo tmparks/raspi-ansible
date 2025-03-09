@@ -1,0 +1,35 @@
+---
+# Install pihole on the Raspberry Pi.
+# https://pi-hole.net/
+# https://discourse.pi-hole.net/t/installing-pi-hole-on-existing-apache-server/43968
+
+- hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: Install packages
+      become: yes
+      apt:
+        update-cache: yes
+        cache_valid_time: 3600
+        pkg:
+          - libapache2-mod-php
+          - php-sqlite3
+
+    - name: Fetch install script
+      get_url:
+        url: https://install.pi-hole.net
+        dest: /tmp/basic-install.sh
+        mode: a+x
+
+    - name: Run install script
+      become: yes
+      command: /tmp/basic-install.sh --unattended ----disable-install-webserver
+
+    - name: Update group membership
+      become: yes
+      user:
+        name: www-data
+        append: true
+        groups: [ pihole ]
+...
