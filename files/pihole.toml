@@ -1,7 +1,7 @@
 # Pi-hole configuration file (v6.0.4)
 # Encoding: UTF-8
 # This file is managed by pihole-FTL
-# Last updated on 2025-03-09 19:55:56 GMT
+# Last updated on 2025-03-12 01:22:05 GMT
 
 [dns]
   # Array of upstream DNS servers used by Pi-hole
@@ -323,7 +323,7 @@
     # and mask-h2.icloud.com to disable Apple's iCloud Private Relay to prevent Apple
     # devices from bypassing Pi-hole? This is following the recommendation on
     # https://developer.apple.com/support/prepare-your-network-for-icloud-private-relay
-    iCloudPrivateRelay = true
+    iCloudPrivateRelay = false ### CHANGED, default = true
 
     [dns.reply.host]
       # Use a specific IPv4 address for the Pi-hole host? By default, FTL determines the
@@ -1182,6 +1182,6 @@
   all = false
 
 # Configuration statistics:
-# 153 total entries out of which 152 entries are default
-# --> 1 entry is modified
+# 153 total entries out of which 151 entries are default
+# --> 2 entries are modified
 
