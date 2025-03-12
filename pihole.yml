@@ -1,0 +1,33 @@
+---
+# Install pihole on the Raspberry Pi.
+# https://pi-hole.net/
+
+- hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: Copy configuration file
+      become: yes
+      copy:
+        src: files/pihole.toml
+        dest: /etc/pihole/
+        mode: 0644
+
+    - name: Fetch install script
+      get_url:
+        url: https://install.pi-hole.net
+        dest: /tmp/basic-install.sh
+        mode: a+x
+
+    - name: Run install script
+      become: yes
+      command: /tmp/basic-install.sh --unattended
+
+    - name: Reset password
+      become: yes
+      command: echo | pihole setpassword
+
+    - name: Update lists
+      become: yes
+      command: pihole updateGravity
+...
