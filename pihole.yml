@@ -2,7 +2,7 @@
 # Install pihole on the Raspberry Pi.
 # https://pi-hole.net/
 
-- hosts: all
+- hosts: raspi
   gather_facts: no
 
   tasks:

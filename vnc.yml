@@ -2,7 +2,7 @@
 # Configure the Raspberry Pi to allow VNC access to the desktop.
 # https://www.raspberrypi.org/documentation/remote-access/vnc/
 
-- hosts: all
+- hosts: raspi
   gather_facts: no
 
   vars_prompt:
