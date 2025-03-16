@@ -1,11 +1,16 @@
 # Development container for ansible
-FROM alpine
+FROM debian
 
-RUN apk add --no-cache \
-    ansible \
-    git \
-    openssh-client
+RUN export DEBIAN_FRONTEND=noninteractive \
+    && apt-get update \
+    && apt-get --yes install \
+        ansible \
+        git \
+        openssh-client \
+        sshpass \
+    && rm --recursive --force /var/lib/apt/lists/*
 
+# Unprivileged user
 RUN adduser --disabled-password user
 USER user
 WORKDIR /home/user
