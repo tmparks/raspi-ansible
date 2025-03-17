@@ -2,8 +2,13 @@
 # Install cacti on the Raspberry Pi.
 # https://cacti.net/
 
-- hosts: all
+- hosts: "{{ ansible_limit | default('raspi') }}"
   gather_facts: yes
+
+  vars:
+    gateway: 192.68.100.1
+    http_port: 8080
+    https_port: 8443
 
   tasks:
     - name: Install packages
@@ -15,6 +20,20 @@
           - cacti
           - python3-bs4
 
+    - name: Set HTTP port numbers 1 of 2
+      become: yes
+      replace:
+        path: /etc/apache2/ports.conf
+        regexp: '^(Listen\s+)\d+'
+        replace: '\g<1>{{ http_port }}'
+
+    - name: Set HTTP port numbers 2 of 2
+      become: yes
+      replace:
+        path: /etc/apache2/sites-available/000-default.conf
+        regexp: '<(VirtualHost\s+.*:)\d+>'
+        replace: '<\g<1>{{ http_port }}>'
+
     - name: Copy files
       become: yes
       copy:
@@ -25,6 +44,7 @@
         - { src: dns.pl, dest: /usr/local/sbin/, mode: '0755' }
         - { src: linux_network.pl, dest: /usr/local/sbin/, mode: '0755' }
         - { src: motorola_status.py, dest: /usr/local/sbin/, mode: '0755' }
+        - { src: netgear_status.py, dest: /usr/local/sbin/, mode: '0755' }
         - { src: cacti_data_template_modem_status.xml, dest: /tmp/, mode: '0644' }
         - { src: cacti_graph_template_modem_errors.xml, dest: /tmp/, mode: '0644' }
         - { src: cacti_graph_template_modem_power.xml, dest: /tmp/, mode: '0644' }
@@ -52,7 +72,7 @@
           - --ping_method=icmp
       loop:
         - { description: Localhost, ip: localhost }
-        - { description: Gateway, ip: "{{ ansible_default_ipv4.gateway }}" }
+        - { description: Gateway, ip: "{{ gateway }}" }
 
     - name: Remove files
       become: yes
