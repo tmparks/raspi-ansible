@@ -1,7 +1,7 @@
 ---
 # Configure the Raspberry Pi as a network file server for Time Machine.
 
-- hosts: all
+- hosts: raspi
   gather_facts: yes
 
   tasks:

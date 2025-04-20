@@ -1,0 +1,12 @@
+---
+# Development containers for ansible
+# docker compose run --rm control [command]
+services:
+  control:
+    build:
+      dockerfile: Dockerfile-control
+  target:
+    build:
+      dockerfile: Dockerfile-target
+    command: sudo /usr/sbin/sshd -D # run ssh service in forground
+...

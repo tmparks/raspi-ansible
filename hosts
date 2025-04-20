@@ -1,5 +1,13 @@
-all:
+---
+raspi:
   hosts:
     raspberrypi.local:
       ansible_user: pi
       ansible_python_interpreter: /usr/bin/python3
+
+test:
+  hosts:
+    raspi-ansible-target-1:
+      ansible_user: pi
+      ansible_ssh_pass: raspberry
+...
