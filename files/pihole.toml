@@ -14,19 +14,17 @@
   #
   # Possible values are:
   #     array of IP addresses and/or hostnames, optionally with a port (#...)
+  # Note: reliable WiFi calling and effective CDNs require ECS
+  # https://en.wikipedia.org/wiki/EDNS_Client_Subnet
   upstreams = [
-    "209.18.47.61",
-    "209.18.47.62",
-    "2001:1998:f00:1::1",
-    "2001:1998:f00:2::1",
-    "208.67.222.222",
-    "208.67.220.220",
-    "2620:119:35::35",
-    "2620:119:53::53",
-    "2606:4700:4700::1111",
-    "2606:4700:4700::1001",
-    "1.0.0.1",
-    "1.1.1.1"
+    "209.18.47.61",       # Spectrum
+    "209.18.47.62",       # Spectrum
+    "2001:1998:f00:1::1", # Spectrum
+    "2001:1998:f00:2::1", # Spectrum
+    "208.67.222.222",     # OpenDNS (ECS, DNSSEC)
+    "208.67.220.220",     # OpenDNS (ECS, DNSSEC)
+    "2620:119:35::35",    # OpenDNS (ECS, DNSSEC)
+    "2620:119:53::53",    # OpenDNS (ECS, DNSSEC)
   ] ### CHANGED, default = []
 
   # Use this option to control deep CNAME inspection. Disabling it might be beneficial

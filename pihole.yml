@@ -30,4 +30,10 @@
     - name: Update lists
       become: yes
       command: pihole updateGravity
+
+    # https://raspberrypi.stackexchange.com/questions/96606/make-iw-wlan0-set-power-save-off-permanent
+    - name: Disable WiFi power save mode
+      become: yes
+      command: nmcli connection modify "43 Payne" wifi.powersave disable
+
 ...
