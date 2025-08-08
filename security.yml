@@ -33,6 +33,16 @@
         - { option: 'PasswordAuthentication', value: 'no' }
         - { option: 'UsePAM', value: 'no' }
 
+    - name: Uninstall packages
+      become: yes
+      apt:
+        update-cache: yes
+        cache_valid_time: 3600
+        pkg:
+          - userconf-pi
+        state: absent
+        purge: yes
+
     - name: Enable automatic updates
       become: yes
       apt:
