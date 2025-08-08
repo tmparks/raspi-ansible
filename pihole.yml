@@ -7,7 +7,7 @@
   gather_facts: no
 
   vars:
-    latest: no
+    latest: yes
     core_version: v5.18.4
     web_version: v5.21
     ftl_version: v5.25.2
