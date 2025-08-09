@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+</head>
+
+<body>
+  <button onClick="enable(host1, status1); enable(host2, status2);">Enable</button>
+  <button onClick="disable(host1, status1); disable(host2, status2);">Disable</button>
+
+  <p>Primary ad blocker is <span id="status1">UNKNOWN</span></p>
+  <p>Secondary ad blocker is <span id="status2">UNKNOWN</span></p>
+
+  <script>
+    const host1 = "192.168.4.2"; // primary host
+    const host2 = "192.168.4.3"; // secondary host
+    let status1 = document.getElementById("status1");
+    let status2 = document.getElementById("status2");
+
+    async function handleResponse(response, element) {
+      try {
+        if (!response.ok) {
+          throw new Error(`Response status: ${response.status}`);
+        }
+        const result = await response.json();
+        console.log(result);
+        let statusString = result.blocking.toUpperCase();
+        if (result.timer) {
+          const timer = Math.round(result.timer) * 1000; // milliseconds
+          const expire = new Date(Date.now() + timer);
+          const url = new URL(response.url);
+          const delay = 2 * 1000; // additional two-second delay
+          statusString += " until " + expire.toLocaleTimeString();
+          setTimeout(getStatus, timer + delay, url.host, element);
+        }
+        element.innerHTML = statusString;
+      }
+      catch (error) {
+        console.error(error.message);
+      }
+    }
+
+    async function getStatus(host, element) {
+      const url = "http://" + host + "/api/dns/blocking";
+      handleResponse(await fetch(url), element);
+    }
+
+    async function enable(host, element) {
+      const url = "http://" + host + "/api/dns/blocking";
+      const request = { blocking: true, timer: null };
+      handleResponse(
+        await fetch(
+          url,
+          { method: "POST", body: JSON.stringify(request) }),
+        element);
+    }
+
+    async function disable(host, element) {
+      const url = "http://" + host + "/api/dns/blocking";
+      const request = { blocking: false, timer: 300 };
+      handleResponse(
+        await fetch(
+          url,
+          { method: "POST", body: JSON.stringify(request) }),
+        element);
+    }
+
+    getStatus(host1, status1);
+    getStatus(host2, status2);
+  </script>
+</body>
+
+</html>
