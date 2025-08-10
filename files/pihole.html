@@ -2,14 +2,42 @@
 <html>
 
 <head>
+  <title>Pi-hole Control</title>
+  <link rel="icon" href="https://wp-cdn.pi-hole.net/wp-content/uploads/2016/12/Vortex-R.png" />
+  <style>
+    body {
+      background-color: #3c8dbc;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+    }
+
+    img.logo {
+      height: 1em;
+    }
+  </style>
 </head>
 
 <body>
-  <button onClick="enable(host1, status1); enable(host2, status2);">Enable</button>
-  <button onClick="disable(host1, status1); disable(host2, status2);">Disable</button>
 
-  <p>Primary ad blocker is <span id="status1">UNKNOWN</span></p>
-  <p>Secondary ad blocker is <span id="status2">UNKNOWN</span></p>
+  <h1>Pi-hole Control</h1>
+
+  <p>
+    <button onClick="enable(host1, status1); enable(host2, status2);">Enable</button>
+    <button onClick="disable(host1, status1); disable(host2, status2);">Disable</button>
+  </p>
+
+  <p>
+    <a href="http://192.168.4.2/admin"><img class="logo"
+        src="https://wp-cdn.pi-hole.net/wp-content/uploads/2016/12/Vortex-R.png" /></a>
+    Primary ad blocker is <span id="status1">UNKNOWN</span>
+  </p>
+
+  <p>
+    <a href="http://192.168.4.3/admin"><img class="logo"
+        src="https://wp-cdn.pi-hole.net/wp-content/uploads/2016/12/Vortex-R.png" /></a>
+    Secondary ad blocker is <span id="status2">UNKNOWN</span>
+  </p>
 
   <script>
     const host1 = "192.168.4.2"; // primary host
@@ -68,6 +96,7 @@
     getStatus(host1, status1);
     getStatus(host2, status2);
   </script>
+
 </body>
 
 </html>
