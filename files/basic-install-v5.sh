@@ -72,9 +72,9 @@ webroot="/var/www/html"
 # Pi-hole contains various setup scripts and files which are critical to the installation.
 # Search for "PI_HOLE_LOCAL_REPO" in this file to see all such scripts.
 # Two notable scripts are gravity.sh (used to generate the HOSTS file) and advanced/Scripts/webpage.sh (used to install the Web admin interface)
-webInterfaceGitUrl="https://github.com/pi-hole/web.git"
+webInterfaceGitUrl="--branch v5.21 https://github.com/pi-hole/web.git"
 webInterfaceDir="${webroot}/admin"
-piholeGitUrl="https://github.com/pi-hole/pi-hole.git"
+piholeGitUrl="--branch v5.18.4 https://github.com/pi-hole/pi-hole.git"
 PI_HOLE_LOCAL_REPO="/etc/.pihole"
 # List of pihole scripts, stored in an array
 PI_HOLE_FILES=(chronometer list piholeDebug piholeLogFlush setupLCD update version gravity uninstall webpage)
@@ -433,7 +433,7 @@ make_repo() {
         return 1
     fi
     # Clone the repo and return the return code from this command
-    git clone -q --depth 20 "${remoteRepo}" "${directory}" &> /dev/null || return $?
+    git clone -q --depth 20 ${remoteRepo} "${directory}" &> /dev/null || return $?
     # Move into the directory that was passed as an argument
     pushd "${directory}" &> /dev/null || return 1
     # Check current branch. If it is master, then reset to the latest available tag.
@@ -2090,7 +2090,7 @@ update_dialogs() {
 }
 
 check_download_exists() {
-    status=$(curl --head --silent "https://ftl.pi-hole.net/${1}" | head -n 1)
+    status=$(curl --head --silent "https://github.com/pi-hole/FTL/releases/download/${1}" | head -n 1)
     if grep -q "404" <<< "$status"; then
         return 1
     else
@@ -2188,14 +2188,14 @@ clone_or_update_repos() {
     # Otherwise, a repair is happening
     else
         # so get git files for Core
-        getGitFiles ${PI_HOLE_LOCAL_REPO} ${piholeGitUrl} || \
+        getGitFiles ${PI_HOLE_LOCAL_REPO} "${piholeGitUrl}" || \
         { printf "  %b Unable to clone %s into %s, unable to continue%b\\n" "${COL_LIGHT_RED}" "${piholeGitUrl}" "${PI_HOLE_LOCAL_REPO}" "${COL_NC}"; \
         exit 1; \
         }
         # If the Web interface was installed,
         if [[ "${INSTALL_WEB_INTERFACE}" == true ]]; then
             # get the Web git files
-            getGitFiles ${webInterfaceDir} ${webInterfaceGitUrl} || \
+            getGitFiles ${webInterfaceDir} "${webInterfaceGitUrl}" || \
             { printf "  %b Unable to clone %s into ${webInterfaceDir}, exiting installer%b\\n" "${COL_LIGHT_RED}" "${webInterfaceGitUrl}" "${COL_NC}"; \
             exit 1; \
             }
@@ -2220,7 +2220,7 @@ FTLinstall() {
     if [[ -f "/etc/pihole/ftlbranch" ]];then
         ftlBranch=$(</etc/pihole/ftlbranch)
     else
-        ftlBranch="master"
+        ftlBranch="v5.25.2"
     fi
 
     local binary
@@ -2230,7 +2230,7 @@ FTLinstall() {
     if [[ "${ftlBranch}" == "master" ]];then
         url="https://github.com/pi-hole/ftl/releases/latest/download"
     else
-        url="https://ftl.pi-hole.net/${ftlBranch}"
+        url="https://github.com/pi-hole/FTL/releases/download/${ftlBranch}"
     fi
 
     if curl -sSL --fail "${url}/${binary}" -o "${binary}"; then
@@ -2398,7 +2398,7 @@ FTLcheckUpdate() {
     if [[ -f "/etc/pihole/ftlbranch" ]];then
         ftlBranch=$(</etc/pihole/ftlbranch)
     else
-        ftlBranch="master"
+        ftlBranch="v5.25.2"
     fi
 
     local binary
@@ -2428,7 +2428,7 @@ FTLcheckUpdate() {
         if [[ ${ftlLoc} ]]; then
             # We already have a pihole-FTL binary downloaded.
             # Alt branches don't have a tagged version against them, so just confirm the checksum of the local vs remote to decide whether we download or not
-            remoteSha1=$(curl -sSL --fail "https://ftl.pi-hole.net/${ftlBranch}/${binary}.sha1" | cut -d ' ' -f 1)
+            remoteSha1=$(curl -sSL --fail "https://github.com/pi-hole/FTL/releases/download/${ftlBranch}/${binary}.sha1" | cut -d ' ' -f 1)
             localSha1=$(sha1sum "$(command -v pihole-FTL)" | cut -d ' ' -f 1)
 
             if [[ "${remoteSha1}" != "${localSha1}" ]]; then
