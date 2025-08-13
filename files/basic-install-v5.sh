@@ -32,6 +32,12 @@ export PATH+=':/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
 # Local variables will be in lowercase and will exist only within functions
 # It's still a work in progress, so you may see some variance in this guideline until it is complete
 
+# Branch or tag names for versions to install.
+# Use "master" to install latest version.
+CORE_VERSION=v5.18.4
+WEB_VERSION=v5.21
+FTL_VERSION=v5.25.2
+
 # Dialog result codes
 # dialog code values can be set by environment variables, we only override if
 # the env var is not set or empty.
@@ -72,9 +78,9 @@ webroot="/var/www/html"
 # Pi-hole contains various setup scripts and files which are critical to the installation.
 # Search for "PI_HOLE_LOCAL_REPO" in this file to see all such scripts.
 # Two notable scripts are gravity.sh (used to generate the HOSTS file) and advanced/Scripts/webpage.sh (used to install the Web admin interface)
-webInterfaceGitUrl="--branch v5.21 https://github.com/pi-hole/web.git"
+webInterfaceGitUrl="--branch ${WEB_VERSION} https://github.com/pi-hole/web.git"
 webInterfaceDir="${webroot}/admin"
-piholeGitUrl="--branch v5.18.4 https://github.com/pi-hole/pi-hole.git"
+piholeGitUrl="--branch ${CORE_VERSION} https://github.com/pi-hole/pi-hole.git"
 PI_HOLE_LOCAL_REPO="/etc/.pihole"
 # List of pihole scripts, stored in an array
 PI_HOLE_FILES=(chronometer list piholeDebug piholeLogFlush setupLCD update version gravity uninstall webpage)
@@ -2220,7 +2226,7 @@ FTLinstall() {
     if [[ -f "/etc/pihole/ftlbranch" ]];then
         ftlBranch=$(</etc/pihole/ftlbranch)
     else
-        ftlBranch="v5.25.2"
+        ftlBranch="${FTL_VERSION}"
     fi
 
     local binary
@@ -2398,7 +2404,7 @@ FTLcheckUpdate() {
     if [[ -f "/etc/pihole/ftlbranch" ]];then
         ftlBranch=$(</etc/pihole/ftlbranch)
     else
-        ftlBranch="v5.25.2"
+        ftlBranch="${FTL_VERSION}"
     fi
 
     local binary
