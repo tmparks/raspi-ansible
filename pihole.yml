@@ -8,98 +8,87 @@
 
   vars:
     latest: yes
-    core_version: v5.18.4
-    web_version: v5.21
-    ftl_version: v5.25.2
 
   tasks:
-    - name: Install packages
-      become: yes
-      apt:
-        update-cache: yes
-        cache_valid_time: 3600
-        pkg:
-          - libapache2-mod-php
-          - php-sqlite3
-      when: not latest
-
-    - name: Copy configuration file
-      become: yes
-      copy:
-        src: files/setupVars.conf
-        dest: /etc/pihole/
-        mode: 0644
-      when: not latest
-
-    - name: Copy latest configuration file
-      become: yes
-      copy:
-        src: files/pihole.toml
-        dest: /etc/pihole/
-        mode: 0644
+    ############################################################################
+    - name: Install latest version of pihole
       when: latest
+      block:
 
-    - name: Fetch install script
-      get_url:
-        url: https://github.com/pi-hole/pi-hole/raw/refs/tags/{{ core_version }}/automated%20install/basic-install.sh
-        dest: /tmp/basic-install.sh
-        mode: a+x
+        - name: Copy configuration file
+          become: yes
+          copy:
+            src: files/pihole.toml
+            dest: /etc/pihole/
+            mode: 0644
+
+        - name: Fetch install script
+          get_url:
+            url: https://install.pi-hole.net
+            dest: /tmp/basic-install.sh
+            mode: a+x
+
+        - name: Run install script
+          become: yes
+          command: /tmp/basic-install.sh --unattended
+
+        - name: Reset password
+          become: yes
+          command: echo | pihole setpassword
+
+    ############################################################################
+    - name: Install pihole v5
       when: not latest
+      block:
 
-    - name: Fetch latest install script
-      get_url:
-        url: https://install.pi-hole.net
-        dest: /tmp/basic-install.sh
-        mode: a+x
-      when: latest
+        - name: Install packages
+          become: yes
+          apt:
+            update-cache: yes
+            cache_valid_time: 3600
+            pkg:
+              - libapache2-mod-php
+              - php-sqlite3
 
-    - name: Modify install script
-      replace:
-        path: /tmp/basic-install.sh
-        regexp: '{{ item.regexp }}'
-        replace: '{{ item.replace }}'
-      loop:
-        - { regexp: '(piholeGitUrl)="(https://.*)"', replace: '\g<1>="--branch {{ core_version }} \g<2>"' }
-        - { regexp: '(webInterfaceGitUrl)="(https://.*)"', replace: '\g<1>="--branch {{ web_version }} \g<2>"' }
-        - { regexp: '(ftlBranch)="(master)"', replace: '\g<1>="{{ ftl_version }}"'}
-        - { regexp: 'https://ftl.pi-hole.net/\$\{(.*)\}', replace: 'https://github.com/pi-hole/FTL/releases/download/${\g<1>}' }
-        - { regexp: '(getGitFiles \$\{.*\}) (\$\{.*\})', replace: '\g<1> "\g<2>"' }
-        - { regexp: '(git clone .*) "(\$\{remoteRepo\})" (.*)', replace: '\g<1> \g<2> \g<3>' }
-      when: not latest
+        - name: Copy configuration file
+          become: yes
+          copy:
+            src: files/setupVars.conf
+            dest: /etc/pihole/
+            mode: 0644
 
-    - name: Run install script
-      become: yes
-      command: /tmp/basic-install.sh --unattended
+        - name: Copy install script
+          copy:
+            src: files/basic-install-v5.sh
+            dest: /tmp/
+            mode: 0755
+      
+        - name: Run install script
+          become: yes
+          command: /tmp/basic-install-v5.sh --unattended
 
-    - name: Reset password
-      become: yes
-      command: echo | pihole setpassword
-      when: latest
+        - name: Update group membership
+          become: yes
+          user:
+            name: www-data
+            append: true
+            groups: [ pihole ]
 
-    - name: Update group membership
-      become: yes
-      user:
-        name: www-data
-        append: true
-        groups: [ pihole ]
-      when: not latest
+        - name: Disable automatic version update checks
+          become: yes
+          replace:
+            path: /etc/cron.d/pihole
+            regexp: '^([^#].*pihole updatechecker.*)'
+            replace: '# \g<1>'
 
-    - name: Disable automatic version update checks
-      become: yes
-      replace:
-        path: /etc/cron.d/pihole
-        regexp: '^([^#].*pihole updatechecker.*)'
-        replace: '# \g<1>'
-      when: not latest
+        - name: Remove information about latest version
+          become: yes
+          lineinfile:
+            path: /etc/pihole/versions
+            state: absent
+            search_string: GITHUB_
 
-    - name: Remove information about latest version
-      become: yes
-      lineinfile:
-        path: /etc/pihole/versions
-        state: absent
-        search_string: GITHUB_
-      when: not latest
-
+    ############################################################################
     # https://raspberrypi.stackexchange.com/questions/96606/make-iw-wlan0-set-power-save-off-permanent
     - name: Disable WiFi power save mode
       become: yes
