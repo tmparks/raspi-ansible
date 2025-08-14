@@ -3,7 +3,8 @@ raspi:
   hosts:
     raspberrypi.local:
       ansible_user: pi
-      ansible_python_interpreter: /usr/bin/python3
+    blueberrypi.local:
+      ansible_user: pi
 
 test:
   hosts:

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Pi-hole Control</title>
+  <link rel="icon" href="https://wp-cdn.pi-hole.net/wp-content/uploads/2016/12/Vortex-R.png" />
+  <style>
+    body {
+      background-color: #3c8dbc;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+    }
+
+    img.logo {
+      height: 1em;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Pi-hole Control</h1>
+
+  <p>
+    <button onClick="enable(host1, status1); enable(host2, status2);">Enable</button>
+    <button onClick="disable(host1, status1); disable(host2, status2);">Disable</button>
+  </p>
+
+  <p>
+    <a id="link1"><img class="logo" src="https://wp-cdn.pi-hole.net/wp-content/uploads/2016/12/Vortex-R.png" /></a>
+    Primary ad blocker is <span id="status1">UNKNOWN</span>
+  </p>
+
+  <p>
+    <a id="link2"><img class="logo" src="https://wp-cdn.pi-hole.net/wp-content/uploads/2016/12/Vortex-R.png" /></a>
+    Secondary ad blocker is <span id="status2">UNKNOWN</span>
+  </p>
+
+  <script>
+    function getStatus(host, element) {
+      sendRequest(host, null, element);
+    }
+
+    function enable(host, element) {
+      sendRequest(host, { blocking: true, timer: null }, element);
+    }
+
+    function disable(host, element) {
+      sendRequest(host, { blocking: false, timer: 300 }, element);
+    }
+
+    async function sendRequest(host, request, element) {
+      try {
+        const url = "http://" + host + "/api/dns/blocking";
+        if (request) {
+          handleResponse(await fetch(url, { method: "POST", body: JSON.stringify(request) }), element);
+        }
+        else {
+          handleResponse(await fetch(url), element);
+        }
+      }
+      catch (error) {
+        element.innerHTML = "UNAVAILABLE";
+        console.error(host + ": " + error.message);
+      }
+    }
+
+    async function handleResponse(response, element) {
+      try {
+        if (!response.ok) {
+          throw new Error(`Response status: ${response.status}`);
+        }
+        const result = await response.json();
+        console.debug(result);
+        let statusString = result.blocking.toUpperCase();
+        if (result.timer) {
+          const timer = Math.round(result.timer) * 1000; // milliseconds
+          const expire = new Date(Date.now() + timer);
+          const url = new URL(response.url);
+          const delay = 2 * 1000; // additional two-second delay
+          statusString += " until " + expire.toLocaleTimeString();
+          setTimeout(getStatus, timer + delay, url.host, element);
+        }
+        element.innerHTML = statusString;
+      }
+      catch (error) {
+        element.innerHTML = "UNKNOWN";
+        console.error(error.message);
+      }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    const host1 = "192.168.4.2"; // primary host
+    const host2 = "192.168.4.3"; // secondary host
+    let link1 = document.getElementById("link1");
+    let link2 = document.getElementById("link2");
+    let status1 = document.getElementById("status1");
+    let status2 = document.getElementById("status2");
+
+    link1.href = "http://" + host1 + "/admin";
+    link2.href = "http://" + host2 + "/admin";
+    getStatus(host1, status1);
+    getStatus(host2, status2);
+  </script>
+
+</body>
+
+</html>
