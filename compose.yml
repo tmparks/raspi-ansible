@@ -1,12 +1,17 @@
 ---
 # Development containers for ansible
+# docker compose up --detach
 # docker compose run --rm control [command]
 services:
   control:
+    container_name: control
+    hostname: control
     build:
       dockerfile: Dockerfile-control
   target:
+    container_name: target
+    hostname: target
     build:
       dockerfile: Dockerfile-target
-    command: sudo /usr/sbin/sshd -D # run ssh service in forground
+    command: sudo /usr/sbin/sshd -D # run ssh service in forgeround
 ...

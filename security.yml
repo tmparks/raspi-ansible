@@ -22,24 +22,21 @@
       delegate_to: localhost
       changed_when: no
 
-    - name: Disable password logins
+    - name: Prohibit password logins
       become: yes
-      lineinfile:
-        path: /etc/ssh/sshd_config
-        regexp: "^#?{{ item.option }} "
-        line: "{{ item.option }} {{ item.value }}"
-      with_items:
-        - { option: 'ChallengeResponseAuthentication', value: 'no' }
-        - { option: 'PasswordAuthentication', value: 'no' }
-        - { option: 'UsePAM', value: 'no' }
+      copy:
+        src: files/00-prohibit-password.conf
+        dest: /etc/sshd_config.d/
+        mode: 0600
 
-    - name: Uninstall packages
+    - name: Disable warnings for 'pi' user
       become: yes
       apt:
         update-cache: yes
         cache_valid_time: 3600
         pkg:
           - userconf-pi
+          - libpam-chksshpwd
         state: absent
         purge: yes
 

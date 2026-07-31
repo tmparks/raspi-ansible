@@ -1,0 +1,17 @@
+---
+# docker compose up --detach
+services:
+  # https://www.home-assistant.io/installation/linux#docker-compose
+  homeassistant:
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:stable
+    volumes:
+      - /usr/local/etc/homeassistant:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+    environment:
+      TZ: America/New_York
+...

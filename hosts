@@ -5,10 +5,12 @@ raspi:
       ansible_user: pi
     blueberrypi.local:
       ansible_user: pi
+    homeassistant.local:
+      ansible_user: pi
 
 test:
   hosts:
-    raspi-ansible-target-1:
+    raspi-ansible-target:
       ansible_user: pi
       ansible_ssh_pass: raspberry
 ...

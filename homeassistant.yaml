@@ -1,0 +1,38 @@
+---
+# Install homeassistant on the Raspberry PI
+# https://www.home-assistant.io/installation/alternative/#docker-compose
+# https://docs.docker.com/engine/install/linux-postinstall/
+
+- hosts: "{{ ansible_limit | default('homeassistant.local') }}"
+  gather_facts: no
+
+  tasks:
+    - name: Install packages
+      become: yes
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+        pkg:
+          - docker.io
+          - docker-compose
+
+    - name: Configure users and groups
+      become: yes
+      user:
+        name: pi
+        groups: docker
+        append: true
+
+    - name: Copy files
+      become: yes
+      copy:
+        src: files/compose.yaml
+        dest: /usr/local/etc/homeassistant/
+
+    - name: Start services
+      become: no
+      command:
+        chdir: /usr/local/etc/homeassistant/
+        cmd: docker compose up --detach
+
+...
