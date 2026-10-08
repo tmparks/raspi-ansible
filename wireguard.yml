@@ -1,0 +1,35 @@
+---
+# Configure the Raspberry Pi as a WireGuard VPN peer.
+
+- hosts: "{{ ansible_limit | default('raspberrypi.local') }}"
+  gather_facts: no
+
+  tasks:
+    - name: Install packages
+      become: yes
+      apt:
+        update-cache: yes
+        cache_valid_time: 3600
+        pkg:
+          - wireguard
+
+    - name: Generate keys
+      become: yes
+      shell:
+        cmd: wg genkey | tee wg0.key | wg pubkey > wg0.pub
+        chdir: /etc/wireguard/
+        creates: wg0.key
+
+    - name: Copy configuration file
+      become: yes
+      copy:
+        src: files/wireguard.conf
+        dest: /etc/wireguard/wg0.conf
+        mode: 0600
+        force: false
+
+    - name: Enable service
+      become: yes
+      shell: systemctl enable --now wg-quick@wg0
+
+...
