@@ -1,7 +1,8 @@
 ---
 # Install homeassistant on the Raspberry PI
-# https://www.home-assistant.io/installation/alternative/#docker-compose
+# https://www.home-assistant.io/installation/raspberrypi-other/#docker-compose
 # https://docs.docker.com/engine/install/linux-postinstall/
+# https://github.com/bm1549/home-assistant-frigidaire#manual
 
 - hosts: "{{ ansible_limit | default('homeassistant.local') }}"
   gather_facts: no
@@ -26,13 +27,45 @@
     - name: Copy files
       become: yes
       copy:
-        src: files/compose.yaml
-        dest: /usr/local/etc/homeassistant/
+        src: "files/{{ item.src }}"
+        dest: "{{ item.dest }}"
+      loop:
+        - { src: compose.yaml, dest: /usr/local/etc/homeassistant/ }
+        - { src: 60-otbr-accept-ra.conf, dest: /etc/sysctl.d/ }
+        - { src: 60-otbr-ip-forward.conf, dest: /etc/sysctl.d/ }
+
+    - name: Download Frigidaire integration
+      become: yes
+      unarchive:
+        remote_src: yes
+        src: https://github.com/bm1549/home-assistant-frigidaire/archive/refs/heads/main.zip
+        dest: /tmp/
+
+    - name: Install Frigidaire integration
+      become: yes
+      copy:
+        remote_src: yes
+        src: /tmp/home-assistant-frigidaire-main/custom_components/frigidaire
+        dest: /usr/local/etc/homeassistant/custom_components/
+
+    - name: Load settings from all system configuration files
+      become: yes
+      command: sysctl --system
 
     - name: Start services
       become: no
       command:
         chdir: /usr/local/etc/homeassistant/
-        cmd: docker compose up --detach
+        cmd: "{{ item }}"
+      loop:
+        - docker compose down
+        - docker compose pull
+        - docker compose up --detach
+
+    - name: Clean up
+      become: yes
+      file:
+        path: /tmp/home-assistant-frigidaire-main
+        state: absent
 
 ...

@@ -1,17 +1,68 @@
 ---
 # docker compose up --detach
 services:
-  # https://www.home-assistant.io/installation/linux#docker-compose
+  # https://www.home-assistant.io/installation/raspberrypi-other/#docker-compose
   homeassistant:
     container_name: homeassistant
+    hostname: homeassistant
     image: ghcr.io/home-assistant/home-assistant:stable
     volumes:
       - /usr/local/etc/homeassistant:/config
       - /etc/localtime:/etc/localtime:ro
       - /run/dbus:/run/dbus:ro
+    # devices:
+    #   - /dev/ttyACM0:/dev/ttyACM0 # for firmware updates only
     restart: unless-stopped
-    privileged: true
+    cap_add:
+      - NET_ADMIN
     network_mode: host
     environment:
       TZ: America/New_York
+
+  # https://github.com/matter-js/python-matter-server/blob/main/docs/docker.md
+  matter-server:
+    container_name: matter-server
+    image: ghcr.io/matter-js/python-matter-server:stable
+    volumes:
+      - /usr/local/etc/matter-server:/data
+      - /run/dbus:/run/dbus:ro
+    restart: unless-stopped
+    security_opt:
+      - apparmor:unconfined
+    network_mode: host
+    environment:
+      BLUETOOTH_ADAPTER: 0
+      NOBLE_BINDINGS: dbus
+
+  # https://openthread.io/guides/border-router/build-docker
+  thread-border-router:
+    container_name: otbr
+    image: openthread/border-router:stable
+    volumes:
+      - /usr/local/etc/otbr:/data
+    devices:
+      - /dev/net/tun:/dev/net/tun
+      - /dev/ttyACM0:/dev/ttyACM0
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    network_mode: host
+    environment:
+      OT_RCP_DEVICE: spinel+hdlc+uart:///dev/ttyACM0
+      OT_INFRA_IF: wlan0
+      OT_THREAD_IF: wpan0
+      OT_LOG_LEVEL: 7
+  
+  # https://esphome.io/install/docker/#docker-compose
+  esphome:
+    container_name: esphome
+    image: ghcr.io/esphome/esphome:stable
+    volumes:
+      - /usr/local/etc/esphome:/config
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      ESPHOME_USERNAME: admin
+      ESPHOME_PASSWORD: password
 ...
